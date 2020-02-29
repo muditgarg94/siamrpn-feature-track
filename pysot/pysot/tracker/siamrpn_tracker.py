@@ -13,6 +13,10 @@ from pysot.utils.anchor import Anchors
 from pysot.tracker.base_tracker import SiameseTracker
 
 
+from math import ceil
+import cv2
+
+
 class SiamRPNTracker(SiameseTracker):
     def __init__(self, model):
         super(SiamRPNTracker, self).__init__()
@@ -78,6 +82,7 @@ class SiamRPNTracker(SiameseTracker):
         self.center_pos = np.array([bbox[0]+(bbox[2]-1)/2,
                                     bbox[1]+(bbox[3]-1)/2])
         self.size = np.array([bbox[2], bbox[3]])
+        self.count = 0
 
         # calculate z crop size
         w_z = self.size[0] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
@@ -100,6 +105,9 @@ class SiamRPNTracker(SiameseTracker):
         return:
             bbox(list):[x, y, width, height]
         """
+        #import pdb; pdb.set_trace()
+        self.count += 1
+        print(self.count)
         w_z = self.size[0] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
         h_z = self.size[1] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
         s_z = np.sqrt(w_z * h_z)
@@ -160,7 +168,38 @@ class SiamRPNTracker(SiameseTracker):
                 height]
         best_score = score[best_idx]
 
+        cc,rr,ww,hh = bbox_new[0], bbox_new[1], bbox_new[2], bbox_new[3]
+        from math import floor
+        track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
+
+        #import pdb; pdb.set_trace()
+        #roi = img[rr:rr+hh, cc:cc+ww]
+        #roi = img[ceil(rr):ceil(rr+hh), ceil(cc):ceil(cc+ww)]
+        hsv_roi =  cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv_roi, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
+        roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
+        cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
+
+        term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
+
+
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
+
+        # apply meanshift to get the new location
+        #import pdb; pdb.set_trace()
+        ret, track_window = cv2.meanShift(dst, track_window, term_crit)
+        print('track_window')
+        # Draw it on image
+        x,y,w,h = track_window
+        img2 = cv2.rectangle(img, (x,y), (x+w,y+h), 255,2)
+        cv2.imshow('img2',img2)
+
+        k = cv2.waitKey(60) & 0xff
+        return_value = cv2.imwrite(chr(k)+".jpg",img2)
+
+        #import pdb; pdb.set_trace()
         return {
-                'bbox': bbox_new,
+                'bbox': np.array(track_window),
                 'best_score': best_score
                }

@@ -7,7 +7,7 @@ cap = cv2.VideoCapture('slow_traffic_small.mp4')
 ret,frame = cap.read()
 
 # setup initial location of window
-r,h,c,w = 250,90,400,125  # simply hardcoded the values
+c,r,w,h = 400, 250, 125, 90 
 track_window = (c,r,w,h)
 
 # set up the ROI for tracking
@@ -43,6 +43,7 @@ while(1):
         if k == 27:
             break
         else:
+            import pdb; pdb.set_trace()
             cv2.imwrite(chr(k)+".jpg",img2)
 
     else:
