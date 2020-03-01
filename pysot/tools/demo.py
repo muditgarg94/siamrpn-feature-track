@@ -89,7 +89,7 @@ def main():
             first_frame = False
         else:
             outputs = tracker.track(frame)
-            print ('output is {0}'.format(outputs))
+            #print ('output is {0}'.format(outputs))
             
             if 'polygon' in outputs:
                 polygon = np.array(outputs['polygon']).astype(np.int32)

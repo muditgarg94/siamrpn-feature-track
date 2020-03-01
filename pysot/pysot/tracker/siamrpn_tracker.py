@@ -24,7 +24,7 @@ class SiamRPNTracker(SiameseTracker):
             cfg.ANCHOR.STRIDE + 1 
         #self.score_size = 17
         self.anchor_num = len(cfg.ANCHOR.RATIOS) * len(cfg.ANCHOR.SCALES)
-        print ('score size is',self.score_size)
+        #print ('score size is',self.score_size)
         hanning = np.hanning(self.score_size)
         window = np.outer(hanning, hanning)
         self.window = np.tile(window.flatten(), self.anchor_num)
@@ -78,7 +78,7 @@ class SiamRPNTracker(SiameseTracker):
             img(np.ndarray): BGR image
             bbox: (x, y, w, h) bbox
         """
-        print('Inside SiamRPN tracker')
+        #print('Inside SiamRPN tracker')
         self.center_pos = np.array([bbox[0]+(bbox[2]-1)/2,
                                     bbox[1]+(bbox[3]-1)/2])
         self.size = np.array([bbox[2], bbox[3]])
@@ -107,7 +107,7 @@ class SiamRPNTracker(SiameseTracker):
         """
         #import pdb; pdb.set_trace()
         self.count += 1
-        print(self.count)
+        #       print(self.count)
         w_z = self.size[0] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
         h_z = self.size[1] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
         s_z = np.sqrt(w_z * h_z)
@@ -189,7 +189,7 @@ class SiamRPNTracker(SiameseTracker):
         # apply meanshift to get the new location
         #import pdb; pdb.set_trace()
         ret, track_window = cv2.meanShift(dst, track_window, term_crit)
-        print('track_window')
+        #print('track_window')
         # Draw it on image
         x,y,w,h = track_window
         img2 = cv2.rectangle(img, (x,y), (x+w,y+h), 255,2)
