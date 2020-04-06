@@ -16,6 +16,7 @@ class BaseTracker(object):
     """ Base tracker of single objec tracking
     """
     def init(self, img, bbox):
+
         """
         args:
             img(np.ndarray): BGR image
@@ -48,6 +49,11 @@ class SiameseTracker(BaseTracker):
             pos = [pos, pos]
         sz = original_sz
         im_sz = im.shape
+        import pdb
+        pdb.set_trace()
+
+        print (im_sz)
+        print(im)
         c = (original_sz + 1) / 2
         # context_xmin = round(pos[0] - c) # py2 and py3 round
         context_xmin = np.floor(pos[0] - c + 0.5)

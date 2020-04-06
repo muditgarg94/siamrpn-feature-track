@@ -162,92 +162,95 @@ if __name__ == "__main__":
         image=cv2.imread(str(argument[1])) # complete image of the scene'''
 
     vid=cv2.VideoCapture(0)
-    while()
+    while(True):
+        ret,image=vid.read()
 
-    clone=image.copy()
-    img_copy=image.copy()
-    cv2.namedWindow("image")
-    cv2.setMouseCallback("image", click_and_crop)
+        clone=image.copy()
+        img_copy=image.copy()
+        cv2.namedWindow("image")
+        cv2.setMouseCallback("image", click_and_crop)
 
-    print("Label the object")
-    print("After making a bounding box, press 'c' ")
-    print("if you wish to select the object again, press 'r' ")
+        print("Label the object")
+        print("After making a bounding box, press 'c' ")
+        print("if you wish to select the object again, press 'r' ")
 
-    # keep looping until the 'c' key is pressed
-    while True:
-        # display the image and wait for a keypress
-        cv2.imshow("image", img_copy)
-        key = cv2.waitKey(1) & 0xFF
+        # keep looping until the 'c' key is pressed
+        while True:
+            # display the image and wait for a keypress
+            cv2.imshow("image", img_copy)
+            key = cv2.waitKey(1) & 0xFF
      
-        # if the 'r' key is pressed, reset the cropping region
-        if key == ord("r"):
-            image = clone.copy()
-            img_copy=image.copy()
+            # if the 'r' key is pressed, reset the cropping region
+            if key == ord("r"):
+                image = clone.copy()
+                img_copy=image.copy()
      
-        # if the 'c' key is pressed, break from the loop
-        elif key == ord("c"):
-            break
+            # if the 'c' key is pressed, break from the loop
+            elif key == ord("c"):
+                break
      
-    # if there are two reference points, then crop the region of interest
-    # from the image and display it
-    if len(refPt) == 2:
-        roi = clone[refPt[0][1]:refPt[1][1], refPt[0][0]:refPt[1][0]]
-        cv2.imshow("ROI", roi)
-        print("press any key")
-        cv2.waitKey(0)
+        # if there are two reference points, then crop the region of interest
+        # from the image and display it
+        if len(refPt) == 2:
+            roi = clone[refPt[0][1]:refPt[1][1], refPt[0][0]:refPt[1][0]]
+            cv2.imshow("ROI", roi)
+            print("press any key")
+            cv2.waitKey(0)
      
-    # close all open windows
-    cv2.destroyAllWindows()
+        # close all open windows
+        cv2.destroyAllWindows()
 
+        import pdb
+        pdb.set_trace()
 
-    obj_img=roi  # roi containing the object
-    h,w,c=obj_img.shape
-    h_=int(h*0.3)
-    w_=int(w*0.3)
+        obj_img=roi  # roi containing the object
+        h,w,c=obj_img.shape
+        h_=int(h*0.3)
+        w_=int(w*0.3)
 
-    bg_img_original= clone[refPt[0][1]-h_:refPt[1][1]+h_, refPt[0][0]-w_:refPt[1][0]+w_]   # roi containing object and surroundings
+        bg_img_original= clone[refPt[0][1]-h_:refPt[1][1]+h_, refPt[0][0]-w_:refPt[1][0]+w_]   # roi containing object and surroundings
 
-#    cv2.rectangle(clone, refPt[0], refPt[1], (0, 255, 0), 2)
-#    cv2.rectangle(clone, (refPt[0][0]-w_,refPt[0][1]-h_), (refPt[1][0]+w_,refPt[1][1]+h_), (0, 255, 0), 2)
-#    cv2.imshow("image_clone", clone)
-#    print("press any key")
-#    cv2.waitKey(0)
-#    cv2.destroyAllWindows()
-#    cv2.imshow("see",image)
+    #    cv2.rectangle(clone, refPt[0], refPt[1], (0, 255, 0), 2)
+    #    cv2.rectangle(clone, (refPt[0][0]-w_,refPt[0][1]-h_), (refPt[1][0]+w_,refPt[1][1]+h_), (0, 255, 0), 2)
+    #    cv2.imshow("image_clone", clone)
+    #    print("press any key")
+    #    cv2.waitKey(0)
+    #    cv2.destroyAllWindows()
+    #    cv2.imshow("see",image)
 
-    list_feature_images=feature_images(image)
-    list_object_images =feature_images(obj_img)
-    list_bg_images     =feature_images(bg_img_original)
-    
-    list_VR=[]
-    list_likelihood_images=[]
-
-    for i in range(49) :
-
-        likelihood_image,VR = likelihood(list_feature_images[i],list_object_images[i],list_bg_images[i])
-        list_VR.append(VR)
-        list_likelihood_images.append(likelihood_image)
+        list_feature_images=feature_images(image)
+        list_object_images =feature_images(obj_img)
+        list_bg_images     =feature_images(bg_img_original)
         
+        list_VR=[]
+        list_likelihood_images=[]
 
-    sorted_VR=sorted(range(len(list_VR)),key=lambda x:list_VR[x],reverse=True)
-    print(list_VR)
-    print("Sorted Indices: ",sorted_VR)
+        for i in range(49) :
 
-    array=np.array(sorted_VR)
-    array1=np.array(list_VR)
-    print(array1)
-#    import pdb;
-#    pdb.set_trace();
+            likelihood_image,VR = likelihood(list_feature_images[i],list_object_images[i],list_bg_images[i])
+            list_VR.append(VR)
+            list_likelihood_images.append(likelihood_image)
+            
 
-    fig = plt.figure(figsize=(20,10))
-    fig.suptitle('likelihood images according to variance ratio values', fontsize=14, fontweight='bold')
+        sorted_VR=sorted(range(len(list_VR)),key=lambda x:list_VR[x],reverse=True)
+        print(list_VR)
+        print("Sorted Indices: ",sorted_VR)
 
-    for i in range(49):
-        plt.subplot(7,7,i+1)
-        plt.imshow(list_likelihood_images[sorted_VR[i]],cmap='gray')
-        plt.axis('off')
+        array=np.array(sorted_VR)
+        array1=np.array(list_VR)
+        print(array1)
+    #    import pdb;
+    #    pdb.set_trace();
 
-    #plt.subplot_tool()
-    plt.show()
-    fig.savefig("result2.png")
+        fig = plt.figure(figsize=(20,10))
+        fig.suptitle('likelihood images according to variance ratio values', fontsize=14, fontweight='bold')
+
+        for i in range(49):
+            plt.subplot(7,7,i+1)
+            plt.imshow(list_likelihood_images[sorted_VR[i]],cmap='gray')
+            plt.axis('off')
+
+        #plt.subplot_tool()
+        plt.show()
+        fig.savefig("result2.png")
         
