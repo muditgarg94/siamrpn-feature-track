@@ -4,7 +4,6 @@ import sys
 from matplotlib import pyplot as plt
 import math
 
-
 refPt = []
 cropping = False
 
@@ -154,15 +153,12 @@ def variance(L,a) :
 if __name__ == "__main__":
     argument=sys.argv
     
-    '''if (len(argument)<2) :
+    if (len(argument)<2) :
         print("\n \n provide an image as input\n\n")
 
         image=cv2.imread("basketball.jpg")
     if (len(argument)==2):    
-        image=cv2.imread(str(argument[1])) # complete image of the scene'''
-
-    vid=cv2.VideoCapture(0)
-    while()
+        image=cv2.imread(str(argument[1])) # complete image of the scene
 
     clone=image.copy()
     img_copy=image.copy()
@@ -223,12 +219,10 @@ if __name__ == "__main__":
     list_likelihood_images=[]
 
     for i in range(49) :
-
         likelihood_image,VR = likelihood(list_feature_images[i],list_object_images[i],list_bg_images[i])
         list_VR.append(VR)
         list_likelihood_images.append(likelihood_image)
         
-
     sorted_VR=sorted(range(len(list_VR)),key=lambda x:list_VR[x],reverse=True)
     print(list_VR)
     print("Sorted Indices: ",sorted_VR)
@@ -236,8 +230,6 @@ if __name__ == "__main__":
     array=np.array(sorted_VR)
     array1=np.array(list_VR)
     print(array1)
-#    import pdb;
-#    pdb.set_trace();
 
     fig = plt.figure(figsize=(20,10))
     fig.suptitle('likelihood images according to variance ratio values', fontsize=14, fontweight='bold')
@@ -247,6 +239,7 @@ if __name__ == "__main__":
         plt.imshow(list_likelihood_images[sorted_VR[i]],cmap='gray')
         plt.axis('off')
 
+    #import pdb;pdb.set_trace()
     #plt.subplot_tool()
     plt.show()
     fig.savefig("result2.png")
