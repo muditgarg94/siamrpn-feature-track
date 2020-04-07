@@ -118,7 +118,7 @@ def likelihood(img,obj_img,bg_img,h_,w_) :
     VR_inter = variance(L,(p+q)/2)
     x=np.maximum(VR_intra1+VR_intra2,0.001)
     VR = VR_inter/(x)
-    print ("variance=",VR)
+    #print ("variance=",VR)
     #plotting likelihood
     #plt.figure()
     x=[0,35]
