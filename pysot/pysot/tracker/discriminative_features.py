@@ -189,7 +189,7 @@ def __init__(image,bbox):
     #print(list_VR)
     #print("Sorted Indices: ",sorted_VR)
 
-    best_img=list_likelihood_images[sorted_VR[0]]
+    best_img=(list_likelihood_images[sorted_VR[0]]+list_likelihood_images[sorted_VR[0]]+list_likelihood_images[sorted_VR[0]])/3
     #cv2.imshow("image",best_img)
 
     return best_img
