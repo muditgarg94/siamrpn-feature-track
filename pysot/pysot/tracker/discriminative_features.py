@@ -3,7 +3,7 @@ import numpy as np
 import sys
 from matplotlib import pyplot as plt
 import math
-
+from math import floor
 refPt = []
 cropping = False
 
@@ -56,12 +56,15 @@ def feature_images(input_image) :
         min_possible.append(minimum)
 
     h,w,c=image.shape
-    new_image=np.array((h,w))
+    new_image=np.zeros((h,w,c))
     image=image.astype('uint32')
     feature_images_list=[]
+    #import pdb; pdb.set_trace()
     for i in range(0,49) :
         range_=max_possible[i]-min_possible[i]
-        new_image= ((image[:,:,0]*feature_spaces[i][0]+image[:,:,1]*feature_spaces[i][1]+image[:,:,2]*feature_spaces[i][2]-min_possible[i])*255)/range_
+        new_image[:,:,0]= ((image[:,:,0]*feature_spaces[i][0]-min_possible[i])*255)/range_
+        new_image[:,:,1]=((image[:,:,1]*feature_spaces[i][1]-min_possible[i])*255)/range_
+        new_image[:,:,2]=((image[:,:,2]*feature_spaces[i][2]-min_possible[i])*255)/range_
         new_image=new_image.astype('uint8')
         feature_images_list.append(new_image)
 
@@ -76,8 +79,8 @@ def likelihood(img,obj_img,bg_img,h_,w_) :
        returns likelihood image and variance'''
     #global h_,w_   
     
-    h,w=bg_img.shape
-    bg_img[h_:h-h_,w_:w-w_] = 0  #segmenting surrounding from object pixels
+    h,w,c=bg_img.shape
+    bg_img[h_:h-h_,w_:w-w_,:] = 0  #segmenting surrounding from object pixels
 
     hist_obj = cv2.calcHist([obj_img],[0],None,[32],[0,256])
     hist_bg  = cv2.calcHist([bg_img],[0],None,[32],[0,256])
@@ -149,16 +152,17 @@ def variance(L,a) :
 
     return var
 
+
+
 def __init__(image,bbox):
     clone=image.copy()
-    img_copy=image.copy()
     y1 = bbox[1]
     y2 = bbox[3] +y1
     x1 = bbox[0]
     x2 = bbox[2] +x1
     #cropped=img[floor(min_x):floor(min_x+bbox[2]),floor(min_y):floor(min_y+bbox[3])]
     roi = clone[floor(y1):floor(y2), floor(x1):floor(x2)]
-    h,w,c=obj_img.shape
+    h,w,c=roi.shape
     h_=int(h*0.3)
     w_=int(w*0.3)
     bg_img_original= clone[y1-h_:y2+h_, x1-w_:x2+w_]   # roi containing object and surroundings
@@ -179,10 +183,17 @@ def __init__(image,bbox):
     #print(list_VR)
     #print("Sorted Indices: ",sorted_VR)
 
-    return list_likelihood_images[sorted_VR[0]]
-    
+    best_img=list_likelihood_images[sorted_VR[0]]
+    #cv2.imshow("image",best_img)
+
+    return best_img
+
+
+
+
 
 '''
+
 if __name__ == "__main__":
     argument=sys.argv
     
@@ -276,4 +287,5 @@ if __name__ == "__main__":
     #plt.subplot_tool()
     plt.show()
     fig.savefig("result2.png")
-''' 
+        
+'''

@@ -13,7 +13,9 @@ from pysot.utils.anchor import Anchors
 from pysot.tracker.base_tracker import SiameseTracker
 
 
+from . import discriminative_features as df
 from math import ceil
+from math import floor
 import cv2
 
 
@@ -78,7 +80,30 @@ class SiamRPNTracker(SiameseTracker):
             img(np.ndarray): BGR image
             bbox: (x, y, w, h) bbox
         """
-        #print('Inside SiamRPN tracker')
+        print(bbox)
+        print (img.shape)
+        
+
+        # rows,cols,chan=img.shape
+        # origin=np.array([cols/2,rows/2])
+        # new_bbox=np.zeros(4);
+        # new_bbox[2]=bbox[2]
+        # new_bbox[3]=bbox[3]
+        # new_bbox[0]=origin[0]-bbox[0]
+        # new_bbox[1]=origin[1]-bbox[1]
+
+        # y1 = bbox[1]
+        # y2 = bbox[3] +y1
+        # x1 = bbox[0]
+        # x2 = bbox[2] +x1
+        # #cropped=img[floor(min_x):floor(min_x+bbox[2]),floor(min_y):floor(min_y+bbox[3])]
+        # cropped = img[floor(y1):floor(y2), floor(x1):floor(x2)]
+        # print (cropped.shape)
+        # cv2.imshow("Cropped",cropped)
+        # df.__init__(img,bbox);
+        #import pdb; pdb.set_trace()
+        
+        self.bbox=bbox;
         self.center_pos = np.array([bbox[0]+(bbox[2]-1)/2,
                                     bbox[1]+(bbox[3]-1)/2])
         self.size = np.array([bbox[2], bbox[3]])
@@ -95,7 +120,7 @@ class SiamRPNTracker(SiameseTracker):
         # get crop
         z_crop = self.get_subwindow(img, self.center_pos,
                                     cfg.TRACK.EXEMPLAR_SIZE,
-                                    s_z, self.channel_average)
+                                    s_z, self.channel_average,self.bbox)
         self.model.template(z_crop)
 
     def track(self, img):
@@ -106,6 +131,8 @@ class SiamRPNTracker(SiameseTracker):
             bbox(list):[x, y, width, height]
         """
         #import pdb; pdb.set_trace()
+        #cv2.imshow("IMage",img)
+        #print("image size: ",img.shape)
         self.count += 1
         #       print(self.count)
         w_z = self.size[0] + cfg.TRACK.CONTEXT_AMOUNT * np.sum(self.size)
@@ -113,15 +140,17 @@ class SiamRPNTracker(SiameseTracker):
         s_z = np.sqrt(w_z * h_z)
         scale_z = cfg.TRACK.EXEMPLAR_SIZE / s_z
         s_x = s_z * (cfg.TRACK.INSTANCE_SIZE / cfg.TRACK.EXEMPLAR_SIZE)
+        #import pdb;pdb.set_trace()
         x_crop = self.get_subwindow(img, self.center_pos,
                                     cfg.TRACK.INSTANCE_SIZE,
-                                    round(s_x), self.channel_average)
+                                    round(s_x), self.channel_average,self.bbox)
         #import pdb;pdb.set_trace()
         outputs = self.model.track(x_crop)
 
         score = self._convert_score(outputs['cls'])
         pred_bbox = self._convert_bbox(outputs['loc'], self.anchors)
 
+        #import pdb; pdb.set_trace()
         def change(r):
             return np.maximum(r, 1. / r)
 
@@ -154,6 +183,7 @@ class SiamRPNTracker(SiameseTracker):
         width = self.size[0] * (1 - lr) + bbox[2] * lr
         height = self.size[1] * (1 - lr) + bbox[3] * lr
 
+        #import pdb; pdb.set_trace()
         # clip boundary
         cx, cy, width, height = self._bbox_clip(cx, cy, width,
                                                 height, img.shape[:2])
@@ -169,12 +199,15 @@ class SiamRPNTracker(SiameseTracker):
         best_score = score[best_idx]
 
         cc,rr,ww,hh = bbox_new[0], bbox_new[1], bbox_new[2], bbox_new[3]
+        #import pdb;pdb.set_trace()
         from math import floor
         track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
+        
 
         #import pdb; pdb.set_trace()
         #roi = img[rr:rr+hh, cc:cc+ww]
         #roi = img[ceil(rr):ceil(rr+hh), ceil(cc):ceil(cc+ww)]
+        '''
         hsv_roi =  cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_roi, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
         roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
@@ -193,12 +226,16 @@ class SiamRPNTracker(SiameseTracker):
         # Draw it on image
         x,y,w,h = track_window
         img2 = cv2.rectangle(img, (x,y), (x+w,y+h), 255,2)
-        cv2.imshow('img2',img2)
+        #cv2.imshow('img2',img2)
 
         k = cv2.waitKey(60) & 0xff
         return_value = cv2.imwrite(chr(k)+".jpg",img2)
-
+        print ("bbox",bbox)
+        print(img.shape)
+        self.bbox=bbox;
+        #cv.imshow("ROI", img[bbox[0]:bbox]);
         #import pdb; pdb.set_trace()
+        '''
         return {
                 'bbox': np.array(track_window),
                 'best_score': best_score
