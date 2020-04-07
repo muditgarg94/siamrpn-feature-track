@@ -108,6 +108,7 @@ def likelihood(img,obj_img,bg_img,h_,w_) :
     delta=delta.ravel()
 
     # defining the log likelihood
+
     temp1=np.maximum(p,delta)
     temp2=np.maximum(q,delta)
     L = np.log10(temp1)-np.log10(temp2)
@@ -115,11 +116,9 @@ def likelihood(img,obj_img,bg_img,h_,w_) :
     VR_intra1 = variance(L,p)
     VR_intra2 = variance(L,q)
     VR_inter = variance(L,(p+q)/2)
-    if(VR_intra1+VR_intra2!=0):
-        VR = VR_inter/(VR_intra1+VR_intra2)
-    else:
-        VR=0
-    #print ("variance=",VR)
+    x=np.maximum(VR_intra1+VR_intra2,0.001)
+    VR = VR_inter/(x)
+    print ("variance=",VR)
     #plotting likelihood
     #plt.figure()
     x=[0,35]
