@@ -62,9 +62,12 @@ def feature_images(input_image) :
     #import pdb; pdb.set_trace()
     for i in range(0,49) :
         range_=max_possible[i]-min_possible[i]
-        new_image[:,:,0]= ((image[:,:,0]*feature_spaces[i][0]-min_possible[i])*255)/range_
-        new_image[:,:,1]=((image[:,:,1]*feature_spaces[i][1]-min_possible[i])*255)/range_
-        new_image[:,:,2]=((image[:,:,2]*feature_spaces[i][2]-min_possible[i])*255)/range_
+        xyz=((image[:,:,0]*feature_spaces[i][0]+image[:,:,1]*feature_spaces[i][1]+image[:,:,2]*feature_spaces[i][2]-min_possible[i])*255)/range_
+        new_image[:,:,0]= xyz
+        new_image[:,:,1]= xyz
+        new_image[:,:,2]= xyz
+        #new_image[:,:,1]=((image[:,:,1]*feature_spaces[i][1]-min_possible[i])*255)/range_
+        #new_image[:,:,2]=((image[:,:,2]*feature_spaces[i][2]-min_possible[i])*255)/range_
         new_image=new_image.astype('uint8')
         feature_images_list.append(new_image)
 
@@ -112,8 +115,11 @@ def likelihood(img,obj_img,bg_img,h_,w_) :
     VR_intra1 = variance(L,p)
     VR_intra2 = variance(L,q)
     VR_inter = variance(L,(p+q)/2)
-    VR = VR_inter/(VR_intra1+VR_intra2)
-    print ("variance=",VR)
+    if(VR_intra1+VR_intra2!=0):
+        VR = VR_inter/(VR_intra1+VR_intra2)
+    else:
+        VR=0
+    #print ("variance=",VR)
     #plotting likelihood
     #plt.figure()
     x=[0,35]
@@ -187,105 +193,3 @@ def __init__(image,bbox):
     #cv2.imshow("image",best_img)
 
     return best_img
-
-
-
-
-
-'''
-
-if __name__ == "__main__":
-    argument=sys.argv
-    
-    if (len(argument)<2) :
-        print("\n \n provide an image as input\n\n")
-
-        image=cv2.imread("basketball.jpg")
-    if (len(argument)==2):    
-        image=cv2.imread(str(argument[1])) # complete image of the scene
-
-    clone=image.copy()
-    img_copy=image.copy()
-    cv2.namedWindow("image")
-    cv2.setMouseCallback("image", click_and_crop)
-
-    print("Label the object")
-    print("After making a bounding box, press 'c' ")
-    print("if you wish to select the object again, press 'r' ")
-
-    # keep looping until the 'c' key is pressed
-    while True:
-        # display the image and wait for a keypress
-        cv2.imshow("image", img_copy)
-        key = cv2.waitKey(1) & 0xFF
-     
-        # if the 'r' key is pressed, reset the cropping region
-        if key == ord("r"):
-            image = clone.copy()
-            img_copy=image.copy()
-     
-        # if the 'c' key is pressed, break from the loop
-        elif key == ord("c"):
-            break
-     
-    # if there are two reference points, then crop the region of interest
-    # from the image and display it
-    if len(refPt) == 2:
-        roi = clone[refPt[0][1]:refPt[1][1], refPt[0][0]:refPt[1][0]]
-        cv2.imshow("ROI", roi)
-        print("press any key")
-        cv2.waitKey(0)
-     
-    # close all open windows
-    cv2.destroyAllWindows()
-
-
-    obj_img=roi  # roi containing the object
-    h,w,c=obj_img.shape
-    h_=int(h*0.3)
-    w_=int(w*0.3)
-
-    bg_img_original= clone[refPt[0][1]-h_:refPt[1][1]+h_, refPt[0][0]-w_:refPt[1][0]+w_]   # roi containing object and surroundings
-
-#    cv2.rectangle(clone, refPt[0], refPt[1], (0, 255, 0), 2)
-#    cv2.rectangle(clone, (refPt[0][0]-w_,refPt[0][1]-h_), (refPt[1][0]+w_,refPt[1][1]+h_), (0, 255, 0), 2)
-#    cv2.imshow("image_clone", clone)
-#    print("press any key")
-#    cv2.waitKey(0)
-#    cv2.destroyAllWindows()
-#    cv2.imshow("see",image)
-
-    list_feature_images=feature_images(image)
-    list_object_images =feature_images(obj_img)
-    list_bg_images     =feature_images(bg_img_original)
-    
-    list_VR=[]
-    list_likelihood_images=[]
-
-    for i in range(49) :
-        likelihood_image,VR = likelihood(list_feature_images[i],list_object_images[i],list_bg_images[i])
-        list_VR.append(VR)
-        list_likelihood_images.append(likelihood_image)
-        
-    sorted_VR=sorted(range(len(list_VR)),key=lambda x:list_VR[x],reverse=True)
-    print(list_VR)
-    print("Sorted Indices: ",sorted_VR)
-
-    array=np.array(sorted_VR)
-    array1=np.array(list_VR)
-    print(array1)
-
-    fig = plt.figure(figsize=(20,10))
-    fig.suptitle('likelihood images according to variance ratio values', fontsize=14, fontweight='bold')
-
-    for i in range(49):
-        plt.subplot(7,7,i+1)
-        plt.imshow(list_likelihood_images[sorted_VR[i]],cmap='gray')
-        plt.axis('off')
-
-    #import pdb;pdb.set_trace()
-    #plt.subplot_tool()
-    plt.show()
-    fig.savefig("result2.png")
-        
-'''

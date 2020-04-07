@@ -119,12 +119,12 @@ class SiameseTracker(BaseTracker):
             s_z: original size
             avg_chans: channel average
         """
-        print("inside discriminative subwindow")
+        #print("inside discriminative subwindow")
         if isinstance(pos, float):
             pos = [pos, pos]
         sz = original_sz
         
-
+        img=im
         img=df.__init__(im, bbox)
         im_sz = img.shape
 
@@ -144,13 +144,13 @@ class SiameseTracker(BaseTracker):
         context_xmax = context_xmax + left_pad
         context_ymin = context_ymin + top_pad
         context_ymax = context_ymax + top_pad
-        print (im_sz)
+        #print (im_sz)
 
 
         #import pdb; pdb.set_trace();
 
         r, c, k = img.shape
-        print(k)
+        #print(k)
         if any([top_pad, bottom_pad, left_pad, right_pad]):
             size = (r + top_pad + bottom_pad, c + left_pad + right_pad, k)
             te_im = np.zeros(size, np.uint8)

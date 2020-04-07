@@ -80,8 +80,8 @@ class SiamRPNTracker(SiameseTracker):
             img(np.ndarray): BGR image
             bbox: (x, y, w, h) bbox
         """
-        print(bbox)
-        print (img.shape)
+        #print(bbox)
+        #print (img.shape)
         
 
         # rows,cols,chan=img.shape
@@ -141,6 +141,7 @@ class SiamRPNTracker(SiameseTracker):
         scale_z = cfg.TRACK.EXEMPLAR_SIZE / s_z
         s_x = s_z * (cfg.TRACK.INSTANCE_SIZE / cfg.TRACK.EXEMPLAR_SIZE)
         #import pdb;pdb.set_trace()
+        #print(self.bbox)
         x_crop = self.get_subwindow(img, self.center_pos,
                                     cfg.TRACK.INSTANCE_SIZE,
                                     round(s_x), self.channel_average,self.bbox)
@@ -236,6 +237,7 @@ class SiamRPNTracker(SiameseTracker):
         #cv.imshow("ROI", img[bbox[0]:bbox]);
         #import pdb; pdb.set_trace()
         '''
+        self.bbox=np.array(track_window);
         return {
                 'bbox': np.array(track_window),
                 'best_score': best_score
