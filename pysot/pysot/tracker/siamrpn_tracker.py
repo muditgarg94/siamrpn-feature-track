@@ -115,6 +115,7 @@ class SiamRPNTracker(SiameseTracker):
         s_z = round(np.sqrt(w_z * h_z))
 
         # calculate channle average
+        #print(img.shape)
         self.channel_average = np.mean(img, axis=(0, 1))
 
         # get crop

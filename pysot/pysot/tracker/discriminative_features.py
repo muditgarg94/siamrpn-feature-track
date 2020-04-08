@@ -170,7 +170,7 @@ def __init__(image,bbox):
     h,w,c=roi.shape
     h_=int(h*0.3)
     w_=int(w*0.3)
-    bg_img_original= clone[y1-h_:y2+h_, x1-w_:x2+w_]   # roi containing object and surroundings
+    bg_img_original= clone[floor(y1-h_):floor(y2+h_), floor(x1-w_):floor(x2+w_)]   # roi containing object and surroundings
 
     list_feature_images=feature_images(image)
     list_object_images =feature_images(roi)

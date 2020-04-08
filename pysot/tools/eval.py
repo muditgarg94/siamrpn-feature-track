@@ -31,9 +31,9 @@ args = parser.parse_args()
 
 def main():
     tracker_dir = os.path.join(args.tracker_path, args.dataset)
-    trackers = glob(os.path.join(args.tracker_path,
-                                 args.dataset,
-                                 args.tracker_prefix+'*'))
+    print (tracker_dir)
+    trackers = glob(os.path.join(args.tracker_prefix+'*'))
+    print("tracker is = ",trackers)
     trackers = [x.split('/')[-1] for x in trackers]
 
     assert len(trackers) > 0
@@ -42,6 +42,7 @@ def main():
     root = os.path.realpath(os.path.join(os.path.dirname(__file__),
                             '../testing_dataset'))
     root = os.path.join(root, args.dataset)
+    print ("root dir=",root)
     if 'OTB' in args.dataset:
         dataset = OTBDataset(args.dataset, root)
         dataset.set_tracker(tracker_dir, trackers)
@@ -121,14 +122,14 @@ def main():
                 trackers), desc='eval ar', total=len(trackers), ncols=100):
                 ar_result.update(ret)
 
+        print(ar_result)
         benchmark = EAOBenchmark(dataset)
         eao_result = {}
         with Pool(processes=args.num) as pool:
             for ret in tqdm(pool.imap_unordered(benchmark.eval,
                 trackers), desc='eval eao', total=len(trackers), ncols=100):
                 eao_result.update(ret)
-        ar_benchmark.show_result(ar_result, eao_result,
-                show_video_level=args.show_video_level)
+        ar_benchmark.show_result(ar_result, eao_result,show_video_level=args.show_video_level)
     elif 'VOT2018-LT' == args.dataset:
         dataset = VOTLTDataset(args.dataset, root)
         dataset.set_tracker(tracker_dir, trackers)

@@ -27,6 +27,10 @@ class AccuracyRobustnessBenchmark:
         Returns:
             ret: dict of results
         """
+       
+        print("***************************Evaluating Accuracy*****************************")
+        print(self.dataset.tracker_names)
+        #import pdb; pdb.set_trace()
         if eval_trackers is None:
             eval_trackers = self.dataset.tracker_names
         if isinstance(eval_trackers, str):
@@ -35,6 +39,8 @@ class AccuracyRobustnessBenchmark:
         result = {}
         for tracker_name in eval_trackers:
             accuracy, failures = self._calculate_accuracy_robustness(tracker_name)
+            print (accuracy)
+            print (failures)
             result[tracker_name] = {'overlaps': accuracy,
                                     'failures': failures}
         return result
@@ -68,6 +74,8 @@ class AccuracyRobustnessBenchmark:
             tracker_names = list(result.keys())
         for tracker_name in tracker_names:
         # for tracker_name, ret in result.items():
+            #import pdb;
+            #pdb.set_trace()
             ret = result[tracker_name]
             overlaps = list(itertools.chain(*ret['overlaps'].values()))
             accuracy = np.nanmean(overlaps)
@@ -120,18 +128,28 @@ class AccuracyRobustnessBenchmark:
         failures = {}
         all_length = {}
         for i in range(len(self.dataset)):
+            print("Inside")
             video = self.dataset[i]
+            print(self.dataset)
             gt_traj = video.gt_traj
+            #print("gt_traj",gt_traj);
+            print("************************predicted trajectory*******************")
+            print(video.pred_trajs)
             if tracker_name not in video.pred_trajs:
                 tracker_trajs = video.load_tracker(self.dataset.tracker_path, tracker_name, False)
             else:
+                print("tracker_name predict traj")
+                print(video.pred_trajs[tracker_name])
                 tracker_trajs = video.pred_trajs[tracker_name]
+            print("look for this ",tracker_trajs);
             overlaps_group = []
             num_failures_group = []
             for tracker_traj in tracker_trajs:
+                print("tracker traj");
                 num_failures = calculate_failures(tracker_traj)[0]
                 overlaps_ = calculate_accuracy(tracker_traj, gt_traj,
                         burnin=10, bound=(video.width, video.height))[1]
+                print(overlaps_)
                 overlaps_group.append(overlaps_)
                 num_failures_group.append(num_failures)
             with warnings.catch_warnings():

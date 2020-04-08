@@ -67,6 +67,8 @@ class VOTVideo(Video):
             path(str): path to result
             tracker_name(list): name of tracker
         """
+        path="results/VOT2016"
+        tracker_names=['model']
         if not tracker_names:
             tracker_names = [x.split('/')[-1] for x in glob(path)
                     if os.path.isdir(x)]
@@ -74,6 +76,12 @@ class VOTVideo(Video):
             tracker_names = [tracker_names]
         for name in tracker_names:
             traj_files = glob(os.path.join(path, name, 'baseline', self.name, '*0*.txt'))
+            print("*************************INside load tracker*******************")
+            print(path)
+            print("tracker_name=",name)
+            print("joined_path=",os.path.join(path, name, 'baseline', self.name, '*0*.txt'))
+
+            print(traj_files);
             if len(traj_files) == 15:
                 traj_files = traj_files
             else:
@@ -101,7 +109,7 @@ class VOTDataset(Dataset):
         with open(os.path.join(dataset_root, name+'.json'), 'r') as f:
             meta_data = json.load(f)
 
-        # load videos
+        # load videos#
         pbar = tqdm(meta_data.keys(), desc='loading '+name, ncols=100)
         self.videos = {}
         for video in pbar:
@@ -118,7 +126,7 @@ class VOTDataset(Dataset):
                                           meta_data[video]['size_change'],
                                           meta_data[video]['occlusion'],
                                           load_img=load_img)
-
+        #import pdb; pdb.set_trace()
         self.tags = ['all', 'camera_motion', 'illum_change', 'motion_change',
                      'size_change', 'occlusion', 'empty']
 
@@ -126,8 +134,8 @@ class VOTDataset(Dataset):
 class VOTLTVideo(Video):
     """
     Args:
-        name: video name
-        root: dataset root
+        name: video namev
+vot        root: dataset root
         video_dir: video directory
         init_rect: init rectangle
         img_names: image names
