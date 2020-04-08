@@ -202,13 +202,16 @@ class SiamRPNTracker(SiameseTracker):
         cc,rr,ww,hh = bbox_new[0], bbox_new[1], bbox_new[2], bbox_new[3]
         #import pdb;pdb.set_trace()
         from math import floor
-        track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
-        
+        #track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
+        cc = floor(bbox_new[0])
+        rr = floor(bbox_new[1])
+        ww = floor(bbox_new[2])
+        hh = floor(bbox_new[3])
 
         #import pdb; pdb.set_trace()
         #roi = img[rr:rr+hh, cc:cc+ww]
         #roi = img[ceil(rr):ceil(rr+hh), ceil(cc):ceil(cc+ww)]
-        '''
+
         hsv_roi =  cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_roi, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
         roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
@@ -222,6 +225,7 @@ class SiamRPNTracker(SiameseTracker):
 
         # apply meanshift to get the new location
         #import pdb; pdb.set_trace()
+        track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
         ret, track_window = cv2.meanShift(dst, track_window, term_crit)
         #print('track_window')
         # Draw it on image
@@ -236,7 +240,7 @@ class SiamRPNTracker(SiameseTracker):
         self.bbox=bbox;
         #cv.imshow("ROI", img[bbox[0]:bbox]);
         #import pdb; pdb.set_trace()
-        '''
+
         self.bbox=np.array(track_window);
         return {
                 'bbox': np.array(track_window),
