@@ -115,7 +115,6 @@ class SiamRPNTracker(SiameseTracker):
         s_z = round(np.sqrt(w_z * h_z))
 
         # calculate channle average
-        #print(img.shape)
         self.channel_average = np.mean(img, axis=(0, 1))
 
         # get crop
@@ -204,8 +203,12 @@ class SiamRPNTracker(SiameseTracker):
         #import pdb;pdb.set_trace()
         from math import floor
         track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
-        
-
+        '''
+        cc = floor(bbox_new[0])
+        rr = floor(bbox_new[1])
+        ww = floor(bbox_new[2])
+        hh = floor(bbox_new[3])
+        '''
         #import pdb; pdb.set_trace()
         #roi = img[rr:rr+hh, cc:cc+ww]
         #roi = img[ceil(rr):ceil(rr+hh), ceil(cc):ceil(cc+ww)]
@@ -223,6 +226,7 @@ class SiamRPNTracker(SiameseTracker):
 
         # apply meanshift to get the new location
         #import pdb; pdb.set_trace()
+        track_window = (floor(bbox_new[0]), floor(bbox_new[1]), floor(bbox_new[2]), floor(bbox_new[3]))
         ret, track_window = cv2.meanShift(dst, track_window, term_crit)
         #print('track_window')
         # Draw it on image

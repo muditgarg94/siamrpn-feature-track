@@ -150,7 +150,7 @@ class SiameseTracker(BaseTracker):
         #import pdb; pdb.set_trace();
 
         r, c, k = img.shape
-        #print(k)
+        print(k)
         if any([top_pad, bottom_pad, left_pad, right_pad]):
             size = (r + top_pad + bottom_pad, c + left_pad + right_pad, k)
             te_im = np.zeros(size, np.uint8)
